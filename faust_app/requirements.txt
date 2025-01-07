@@ -1,0 +1,4 @@
+faust-streaming
+pandas
+pymongo
+scikit-learn
