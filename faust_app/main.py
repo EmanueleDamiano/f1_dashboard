@@ -50,11 +50,13 @@ async def process_data(stream):
         print("record recived in consumer type and data: ", type(record), "\n", record)
         new_messages.append(record)
         print("processed record", record)
-        
+        if len(new_messages) > 100:  # Limit to the latest 100 messages
+            new_messages.pop(0)
+        print("processed record", record)
 @app.page('/driver_data')
-async def latest_message(request):
+async def latest_message(self,request):
     latest = new_messages
-    return app.json({'latest_message': latest,
+    return self.json({'latest_message': latest,
                      'timestamp'      : str(datetime.now())})
 
 
