@@ -42,19 +42,20 @@ data_topic = app.topic('data_topic')
 #             logger.info(f"Successfully connected to Kafka and found a record: {record}")
 #     except Exception as e:
 #         logger.error(f"Error connecting to Kafka or topic '{data_topic.name}': {e}")
-
+new_messages = []
 @app.agent(data_topic) ## consuma messaggi 
 async def process_data(stream):
     print("input stream: ", stream)
     async for record in stream:
         print("record recived in consumer type and data: ", type(record), "\n", record)
-        # last_message["data"] = record
-        # print("processed record", record)
+        new_messages.append(record)
+        print("processed record", record)
         
-@app.page('/latest')
+@app.page('/driver_data')
 async def latest_message(request):
-    latest = last_message['latest']
-    return app.json({'latest_message': latest})
+    latest = new_messages
+    return app.json({'latest_message': latest,
+                     'timestamp'      : str(datetime.now())})
 
 
 

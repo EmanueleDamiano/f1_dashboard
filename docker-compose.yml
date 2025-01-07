@@ -134,6 +134,9 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_CREATE_TOPICS_DELAY_MS: 5000
+
     # healthcheck:
     #   test: ["CMD", "kafka-topics", "--list", "--bootstrap-server", "localhost:9092"]
     #   interval: 10s
@@ -141,6 +144,16 @@ services:
     #   retries: 5
     networks:
       - f1_network
+
+  # kafka-init:
+  #   image: confluentinc/cp-kafka:latest
+  #   depends_on:
+  #     - kafka
+  #   volumes:
+  #     - ./kafka-init.sh:/kafka_tools/kafka-init.sh
+  #   entrypoint: /kakfa-tools/kafka-init.sh
+
+
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
