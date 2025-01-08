@@ -8,9 +8,7 @@ import time
 import pandas as pd 
 import pickle
 # from pymongo import MongoClient
-import asyncio
 from datetime import datetime
-import logging
 
 # Define your Faust app
 app = faust.App('data_consumer', broker='kafka://kafka:9092')
