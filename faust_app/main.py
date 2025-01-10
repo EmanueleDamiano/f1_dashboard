@@ -9,6 +9,9 @@ import pandas as pd
 import pickle
 # from pymongo import MongoClient
 from datetime import datetime
+import asyncio
+# from fastapi import FastAPI
+from pydantic import BaseModel
 
 # Define your Faust app
 app = faust.App('data_consumer', broker='kafka://kafka:9092')
@@ -40,6 +43,45 @@ data_topic = app.topic('data_topic')
 #             logger.info(f"Successfully connected to Kafka and found a record: {record}")
 #     except Exception as e:
 #         logger.error(f"Error connecting to Kafka or topic '{data_topic.name}': {e}")
+
+
+
+
+# Define your Faust app
+app = faust.App('data_producer', broker='kafka://kafka:9092')
+
+# Define a Kafka topic
+data_topic = app.topic('data_topic', value_type=dict)
+print("created topic")
+
+full_data = pd.read_csv("processed_data_for_training.csv")
+print("shape of full data: ", full_data.shape)
+
+class SimulationRequest(BaseModel):
+    duration: int
+    intensity: str
+
+## produce data in data_topic
+@app.timer(interval=1.0)
+async def produce_data(argument = "None"):
+    for _, record in full_data.iterrows():
+        # Convert pandas Series to a dictionary and serialize if necessary
+        record_dict = record.to_dict()
+        print("argument for subsetting data sent from http: ",argument )
+        print("attempt to send this record: ", record_dict)
+        key = str(record_dict.get('Circuit', '_default'))  
+        try:
+            await data_topic.send(key=key, value=record_dict)
+            print(f"Produced message with key: {key}, value: {record_dict}")
+        except Exception as e:
+            print(f"Failed to produce message: {e}")
+        
+        await asyncio.sleep(5)
+
+
+
+
+
 new_messages = []
 @app.agent(data_topic) ## consuma messaggi 
 async def process_data(stream):
@@ -51,8 +93,10 @@ async def process_data(stream):
         if len(new_messages) > 100:  # Limit to the latest 100 messages
             new_messages.pop(0)
         print("processed record", record)
+
 @app.page('/driver_data')
 async def latest_message(self,request):
+
     latest = new_messages
     return self.json({'latest_message': latest,
                      'timestamp'      : str(datetime.now())})

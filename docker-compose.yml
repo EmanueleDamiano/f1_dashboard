@@ -168,31 +168,32 @@ services:
 
 
 
-  faust_producer:
-    build: 
-      context: ./faust_producer
-    # command: python faust_producer.py worker
+  # faust_producer:
+  #   build: 
+  #     context: ./faust_producer
+  #   # command: python faust_producer.py worker
 
-    environment:
-      - KAFKA_BROKER=kafka://kafka:9092
-    depends_on:
-      - kafka
-      # kafka:
-      #   condition: service_healthy
-    command: /bin/sh -c "sleep 30 && faust -A faust_producer worker --web-port 6066"
-    volumes:
-    - ./faust_producer:/app
-    networks:
-      - f1_network
+  #   environment:
+  #     - KAFKA_BROKER=kafka://kafka:9092
+  #   depends_on:
+  #     - kafka
+  #     # kafka:
+  #     #   condition: service_healthy
+  #   command: /bin/sh -c "sleep 30 && faust -A faust_producer worker --web-port 6066"
+  #   volumes:
+  #   - ./faust_producer:/app
+  #   networks:
+  #     - f1_network
         
   faust_app:
     build:
       context: ./faust_app
       # dockerfile: faust_app/Dockerfile
     depends_on:
+      - kafka
     #   kafka:
     #     condition: service_healthy
-      - faust_producer
+      # - faust_producer
     environment:
       - KAFKA_BROKER=kafka://kafka:9092
     ports:
