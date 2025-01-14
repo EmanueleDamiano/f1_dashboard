@@ -60,17 +60,17 @@ services:
 
 
 
-  # mongo_data:
+  mongo_data:
 
-  #   image: mongodb/mongodb-community-server:latest
-  #   container_name: mongo_data
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongo_data
     
-  #   ports:
-  #     - "27019:27017"
-  #   volumes:
-  #     - mongodb_data:/data/db 
-  #   networks:
-  #     - f1_network
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongodb_data:/data/db 
+    networks:
+      - f1_network
   
   # spark-submit:
   #   image: jupyter/all-spark-notebook:latest
@@ -145,15 +145,6 @@ services:
     networks:
       - f1_network
 
-  # kafka-init:
-  #   image: confluentinc/cp-kafka:latest
-  #   depends_on:
-  #     - kafka
-  #   volumes:
-  #     - ./kafka-init.sh:/kafka_tools/kafka-init.sh
-  #   entrypoint: /kakfa-tools/kafka-init.sh
-
-
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -168,22 +159,24 @@ services:
 
 
 
-  # faust_producer:
-  #   build: 
-  #     context: ./faust_producer
-  #   # command: python faust_producer.py worker
+  faust_producer:
+    build: 
+      context: ./faust_producer
+    # command: python faust_producer.py worker
 
-  #   environment:
-  #     - KAFKA_BROKER=kafka://kafka:9092
-  #   depends_on:
-  #     - kafka
-  #     # kafka:
-  #     #   condition: service_healthy
-  #   command: /bin/sh -c "sleep 30 && faust -A faust_producer worker --web-port 6066"
-  #   volumes:
-  #   - ./faust_producer:/app
-  #   networks:
-  #     - f1_network
+    environment:
+      - KAFKA_BROKER=kafka://kafka:9092
+    depends_on:
+      - kafka
+      # kafka:
+      #   condition: service_healthy
+    ports:
+      - "6066:6066"
+    command: /bin/sh -c "sleep 5 && faust -A faust_producer worker --web-port 6066"
+    volumes:
+    - ./faust_producer:/app
+    networks:
+      - f1_network
         
   faust_app:
     build:
@@ -196,9 +189,11 @@ services:
       # - faust_producer
     environment:
       - KAFKA_BROKER=kafka://kafka:9092
-    ports:
-      - "6066:6066"
-    command: /bin/sh -c "sleep 30 && faust -A main worker --web-port 6066"
+    # ports:
+    #   - "6066:6066"
+    command: /bin/sh -c "sleep 30 && faust -A main worker"
+
+    # command: /bin/sh -c "sleep 10 && faust -A main worker --web-port 6066"
     # command: python main.py worker
     volumes:
     - ./faust_app:/app
@@ -237,9 +232,9 @@ services:
   #   networks:
   #     - f1_network
 
-# volumes:
-#   mongodb_data:
-#     driver: local
+volumes:
+  mongodb_data:
+    driver: local
 
 networks:
   f1_network:
