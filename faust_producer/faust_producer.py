@@ -46,7 +46,7 @@ async def produce_data(argument):
         
         await asyncio.sleep(5)
         
-
+response_list = []
 @app.page('/simulate_gp')
 async def start_simulation(self, request):
     print("starting simulation")
@@ -56,12 +56,20 @@ async def start_simulation(self, request):
         sort=[('_id', -1)],
         projection={'_id': 0}  # Excludes the _id field
     )
+    try:
+        _to_display = last_record["laptime"]
+    except:
+        _to_display = 0
+
     response_data = {
         'latest_message': "received message",
         'timestamp': str(datetime.now()),
-        'last_record': last_record
+        'last_record': _to_display
     }
-    return self.json(response_data)
+    response_list.append(response_data)
+    # return self.json(response_data)
+    return self.json(response_list)
+    
     # return self.json({
     #     'latest_message': "received message",
     #     'timestamp': str(datetime.now())

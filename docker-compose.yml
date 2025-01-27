@@ -135,6 +135,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CREATE_TOPICS: "data_topic:1:1"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
 
     # healthcheck:
@@ -219,18 +220,18 @@ services:
   #   networks:
   #     - f1_network
     
-  # grafana:
-  #   image: grafana/grafana:latest
-  #   container_name: grafana_dashboard
-  #   environment:
-  #     - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
-  #   ports:
-  #     - "3001:3000"
-  #   # depends_on:
-  #     # - sanic_app
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_real_time
+    environment:
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    ports:
+      - "3001:3000"
+    # depends_on:
+      # - sanic_app
       
-  #   networks:
-  #     - f1_network
+    networks:
+      - f1_network
 
 volumes:
   mongodb_data:
